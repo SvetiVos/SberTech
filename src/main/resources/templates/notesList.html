@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Список заметок</title>
+</head>
+<body>
+<h1>Заметки:</h1>
+<form action="#" th:action="@{/}" th:object="${note}" method="get">
+    <p>Поиск по названию заметки: <input type="text" th:field="*{title}" /></p>
+    <p><input type="submit" value="Поиск" /></p>
+</form>
+
+
+<form action="#" th:action="@{/}" th:object="${note}" method="get">
+    <p>Поиск по дедлайну: <input type="text" th:field="*{dateTime}" /></p>
+    <p><input type="submit" value="Поиск" /></p>
+</form>
+
+
+<br>
+<form action="#" th:action="@{/}" method="get">
+    <select name="status">
+        <option value="">Все задачи</option>
+        <option value="completed">Выполненные задачи</option>
+        <option value="not_completed">Невыполненные задачи</option>
+    </select>
+    <input type="submit" value="Фильтровать" />
+</form>
+
+<br>
+
+<div style="display: flex; justify-content: space-between;">
+    <div>
+        <h2>Работа</h2>
+        <tr th:each="note: ${notesList}">
+            <td th:if="${note.category} == 'work'" th:text="${note.priority}" />
+            <td th:if="${note.category} == 'work'" th:text="${note.title}" />
+            <td th:if="${note.category} == 'work'" th:text="${note.content}" />
+            <td th:if="${note.category} == 'work'" th:text="${note.dateTime}" />
+            <a th:if="${note.category} == 'work'" th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+            <br th:if="${note.category} == 'work'" />
+        </tr>
+    </div>
+    <div>
+        <h2>Дом</h2>
+        <tr th:each="note: ${notesList}">
+            <td th:if="${note.category} == 'home'" th:text="${note.priority}" />
+            <td th:if="${note.category} == 'home'" th:text="${note.title}" />
+            <td th:if="${note.category} == 'home'" th:text="${note.content}" />
+            <td th:if="${note.category} == 'home'" th:text="${note.dateTime}" />
+            <a th:if="${note.category} == 'home'" th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+            <br th:if="${note.category} == 'home'" />
+        </tr>
+    </div>
+    <div>
+        <h2>Личное</h2>
+        <tr th:each="note: ${notesList}">
+            <td th:if="${note.category} == 'personal'" th:text="${note.priority}" />
+            <td th:if="${note.category} == 'personal'" th:text="${note.title}" />
+            <td th:if="${note.category} == 'personal'" th:text="${note.content}" />
+            <td th:if="${note.category} == 'personal'" th:text="${note.dateTime}" />
+            <a th:if="${note.category} == 'personal'" th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+            <br th:if="${note.category} == 'personal'" />
+        </tr>
+    </div>
+    <div>
+        <h2>Учеба</h2>
+        <tr th:each="note: ${notesList}">
+            <td th:if="${note.category} == 'study'" th:text="${note.priority}" />
+            <td th:if="${note.category} == 'study'" th:text="${note.title}" />
+            <td th:if="${note.category} == 'study'" th:text="${note.content}" />
+            <td th:if="${note.category} == 'study'" th:text="${note.dateTime}" />
+            <a th:if="${note.category} == 'study'" th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+            <br th:if="${note.category} == 'study'" />
+        </tr>
+    </div>
+</div>
+<hr>
+
+
+<h3>Создать новую заметку</h3>
+<form action="#" th:action="@{/note/create}" th:object="${note}" method="post">
+    <p>Название заметки: <input type="text" th:field="*{title}" /></p>
+    <p>Описание заметки: <input type="text" th:field="*{content}" /></p>
+    <p>Дедлайн заметки: <input type="text" th:field="*{dateTime}" /></p>
+    <p>Приоритет заметки:
+        <select th:field="*{priority}">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </p>
+    <p>Категория заметки:
+        <select th:field="*{category}">
+            <option value="work">Работа</option>
+            <option value="home">Дом</option>
+            <option value="personal">Личное</option>
+            <option value="study">Учеба</option>
+        </select>
+    </p>
+    <p><input type="submit" value="Добавить заметку" />
+</form>
+</body>
+</html>
