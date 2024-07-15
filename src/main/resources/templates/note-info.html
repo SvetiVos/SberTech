@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Список заметок</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles/main.css}"/>
+</head>
+<tbody>
+<form action="#" th:action="@{/note/update}" th:object="${note}" method="post">
+    <h4>Подробная информация:</h4>
+    <input type="hidden" th:field="*{id}"/>
+    <p>Название заметки: <input type="text" th:field="${note.title}"/></p>
+    <p>Описание заметки: <input type="text" th:field="${note.content}"/></p>
+    <p>Дедлайн заметки: <input type="text" th:field="${note.dateTime}"/></p>
+    <p>Приоритет заметки:
+        <select th:field="*{priority}">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </p>
+
+    <hr>
+    <input type="submit" value="Изменить"/>
+</form>
+<form action="#" th:action="@{/note/delete/{id}(id=${note.id})}" method="post">
+    <input type="submit" value="Удалить"/>
+</form>
+</tbody>
+</html>

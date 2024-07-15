@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Список заметок</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles/main.css}"/>
+</head>
+<body>
+
+<div id="header">
+    <div class="inline">
+        <a th:href="@{/}">Заметки</a>
+    </div>
+
+    <div class="inline">
+        <h1>|</h1>
+    </div>
+
+    <div class="inline">
+        <a th:href="@{/archive}">Архив</a>
+    </div>
+</div>
+
+<hr>
+
+<div id="search">
+    <form action="#" th:action="@{/}" th:object="${note}" method="get">
+        <p>Поиск по названию заметки: <input type="text" th:field="*{title}"/></p>
+        <p><input type="submit" value="Поиск"/></p>
+    </form>
+
+
+    <form action="#" th:action="@{/}" th:object="${note}" method="get">
+        <p>Поиск по дедлайну: <input type="text" th:field="*{dateTime}"/></p>
+        <p><input type="submit" value="Поиск"/></p>
+    </form>
+</div>
+
+<div id="filter">
+    <form action="#" th:action="@{/filter}" th:object="${note}" method="get">
+        <select name="status">
+            <option value="">Все задачи</option>
+            <option value="true">Выполненные задачи</option>
+            <option value="false">Невыполненные задачи</option>
+        </select>
+        <input type="submit" value="Фильтровать"/>
+    </form>
+</div>
+
+<hr>
+
+<div id="notes">
+    <h1>Заметки</h1>
+
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <h2>Работа</h2>
+            <tr th:each="note: ${notesList}">
+                <div th:if="${note.category} == 'work'">
+                    <form th:id="${note.id} + 'ChangeStatusForm'" th:action="@{/note/change/status/{id}(id=${note.id})}" method="post">
+                        <input th:id="${note.id} + 'Note'" type="checkbox" th:checked="${note.status}"
+                               th:onchange="'document.getElementById(\'' + ${note.id} + 'ChangeStatusForm\').submit()'"/>
+                    </form>
+                    <td th:text="${note.priority}"/>
+                    <td th:text="${note.title}"/>
+                    <td th:text="${note.content}"/>
+                    <td th:text="${note.dateTime}"/>
+                    <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+                    <form th:action="@{/note/archive/{id}(id=${note.id})}" method="post">
+                        <input type="submit" value="Архивировать"/>
+                    </form>
+                    <br/>
+                </div>
+            </tr>
+        </div>
+
+        <div>
+            <h2>Дом</h2>
+            <tr th:each="note: ${notesList}">
+                <div th:if="${note.category} == 'home'">
+                    <form th:id="${note.id} + 'ChangeStatusForm'" th:action="@{/note/change/status/{id}(id=${note.id})}" method="post">
+                        <input th:id="${note.id} + 'Note'" type="checkbox" th:checked="${note.status}"
+                               th:onchange="'document.getElementById(\'' + ${note.id} + 'ChangeStatusForm\').submit()'"/>
+                    </form>
+                    <td th:text="${note.priority}"/>
+                    <td th:text="${note.title}"/>
+                    <td th:text="${note.content}"/>
+                    <td th:text="${note.dateTime}"/>
+                    <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+                    <form th:action="@{/note/archive/{id}(id=${note.id})}" method="post">
+                        <input type="submit" value="Архивировать"/>
+                    </form>
+                    <br/>
+                </div>
+            </tr>
+        </div>
+        <div>
+            <h2>Личное</h2>
+            <tr th:each="note: ${notesList}">
+                <div th:if="${note.category} == 'personal'">
+                    <form th:id="${note.id} + 'ChangeStatusForm'" th:action="@{/note/change/status/{id}(id=${note.id})}" method="post">
+                        <input th:id="${note.id} + 'Note'" type="checkbox" th:checked="${note.status}"
+                               th:onchange="'document.getElementById(\'' + ${note.id} + 'ChangeStatusForm\').submit()'"/>
+                    </form>
+                    <td th:text="${note.priority}"/>
+                    <td th:text="${note.title}"/>
+                    <td th:text="${note.content}"/>
+                    <td th:text="${note.dateTime}"/>
+                    <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+                    <form th:action="@{/note/archive/{id}(id=${note.id})}" method="post">
+                        <input type="submit" value="Архивировать"/>
+                    </form>
+                    <br/>
+                </div>
+            </tr>
+        </div>
+    </div>
+</div>
+
+<hr>
+
+<div id="createNote">
+    <h3>Создать новую заметку</h3>
+    <form action="#" th:action="@{/note/create}" th:object="${note}" method="post">
+        <p>Название заметки: <input type="text" th:field="*{title}"/></p>
+        <p>Описание заметки: <input type="text" th:field="*{content}"/></p>
+        <p>Дедлайн заметки: <input type="text" th:field="*{dateTime}"/></p>
+        <p>Приоритет заметки:
+            <select th:field="*{priority}">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+            </select>
+        </p>
+        <p>Категория заметки:
+            <select th:field="*{category}">
+                <option value="work">Работа</option>
+                <option value="home">Дом</option>
+                <option value="personal">Личное</option>
+            </select>
+        </p>
+        <p><input type="submit" value="Добавить заметку"/>
+    </form>
+</div>
+
+<hr>
+
+</body>
+</html>
