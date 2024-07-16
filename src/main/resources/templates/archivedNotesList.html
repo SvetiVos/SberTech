@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8">
+    <title>Список заметок</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/styles/main.css}"/>
+</head>
+<body>
+
+<div id="header">
+    <div class="inline">
+        <a th:href="@{/}">Заметки</a>
+    </div>
+
+    <div class="inline">
+        <h1>|</h1>
+    </div>
+
+    <div class="inline">
+        <a th:href="@{/archive}">Архив</a>
+    </div>
+</div>
+
+<hr>
+
+<div id="search">
+    <form action="#" th:action="@{/archive}" th:object="${note}" method="get">
+        <p>Поиск по названию заметки: <input type="text" th:field="*{title}"/></p>
+        <p><input type="submit" value="Поиск"/></p>
+    </form>
+
+
+    <form action="#" th:action="@{/archive}" th:object="${note}" method="get">
+        <p>Поиск по дедлайну: <input type="text" th:field="*{dateTime}"/></p>
+        <p><input type="submit" value="Поиск"/></p>
+    </form>
+</div>
+
+<hr>
+
+<div id="archivedNotes">
+    <h3>Архивированные заметки</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Приоритет</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Дедлайн</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="note: ${archivedNotesList}">
+            <td th:text="${note.priority}"></td>
+            <td th:text="${note.title}"></td>
+            <td th:text="${note.content}"></td>
+            <td th:text="${note.dateTime}"></td>
+            <td>
+                <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
+            </td>
+            <td>
+                <form th:action="@{/note/unarchive/{id}(id=${note.id})}"
+                      method="post">
+                    <input type="submit" value="Восстановить"/>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<hr>
+
+</body>
+</html>

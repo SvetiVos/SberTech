@@ -1,0 +1,27 @@
+.inline {
+    display: inline-block;
+}
+
+#header {
+    background-color: #bfbfbf;
+}
+
+#search {
+    background-color: #f7fbff;
+}
+
+#filter {
+    background-color: #f7fbff;
+}
+
+#notes {
+    background-color: #f7fbff;
+}
+
+#archivedNotes {
+    background-color: #f7fffb;
+}
+
+#createNote {
+    background-color: #f7fbff;
+}
