@@ -11,7 +11,7 @@
     <input type="hidden" th:field="*{id}"/>
     <p>Название заметки: <input type="text" th:field="${note.title}"/></p>
     <p>Описание заметки: <input type="text" th:field="${note.content}"/></p>
-    <p>Дедлайн заметки: <input type="text" th:field="${note.dateTime}"/></p>
+    <p>Дедлайн заметки: <input type="datetime-local" th:field="*{dateTime}"/></p>
     <p>Приоритет заметки:
         <select th:field="*{priority}">
             <option value="1">1</option>

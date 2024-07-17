@@ -64,7 +64,7 @@
                     <td th:text="${note.priority}"/>
                     <td th:text="${note.title}"/>
                     <td th:text="${note.content}"/>
-                    <td th:text="${note.dateTime}"/>
+                    <td th:text="${#temporals.format(note.dateTime, 'dd-MM-yyyy HH:mm')}"></td>
                     <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
                     <form th:action="@{/note/archive/{id}(id=${note.id})}" method="post">
                         <input type="submit" value="Архивировать"/>
@@ -85,7 +85,7 @@
                     <td th:text="${note.priority}"/>
                     <td th:text="${note.title}"/>
                     <td th:text="${note.content}"/>
-                    <td th:text="${note.dateTime}"/>
+                    <td th:text="${#temporals.format(note.dateTime, 'dd-MM-yyyy HH:mm')}"></td>
                     <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
                     <form th:action="@{/note/archive/{id}(id=${note.id})}" method="post">
                         <input type="submit" value="Архивировать"/>
@@ -105,7 +105,7 @@
                     <td th:text="${note.priority}"/>
                     <td th:text="${note.title}"/>
                     <td th:text="${note.content}"/>
-                    <td th:text="${note.dateTime}"/>
+                    <td th:text="${#temporals.format(note.dateTime, 'dd-MM-yyyy HH:mm')}"></td>
                     <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
                     <form th:action="@{/note/archive/{id}(id=${note.id})}" method="post">
                         <input type="submit" value="Архивировать"/>
@@ -124,7 +124,7 @@
     <form action="#" th:action="@{/note/create}" th:object="${note}" method="post">
         <p>Название заметки: <input type="text" th:field="*{title}"/></p>
         <p>Описание заметки: <input type="text" th:field="*{content}"/></p>
-        <p>Дата начала: <input type="datetime-local" th:field="*{startDate}"/></p>
+
         <p>Частота повторения:
             <select th:field="*{repeatable}">
                 <option value="NONE">Не повторять</option>
@@ -134,6 +134,7 @@
                 <option value="YEAR">Ежегодно</option>
             </select>
         </p>
+        <p>Дата начала: <input type="datetime-local" th:field="*{startDate}"/></p>
         <p>Дедлайн заметки: <input type="datetime-local" th:field="*{dateTime}"/></p>
         <p>Приоритет заметки:
             <select th:field="*{priority}">

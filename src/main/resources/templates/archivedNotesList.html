@@ -55,7 +55,7 @@
             <td th:text="${note.priority}"></td>
             <td th:text="${note.title}"></td>
             <td th:text="${note.content}"></td>
-            <td th:text="${note.dateTime}"></td>
+            <td th:text="${#temporals.format(note.dateTime, 'dd-MM-yyyy HH:mm')}"></td>
             <td>
                 <a th:href="@{/note/{id}(id=${note.id})}">Редактировать</a>
             </td>

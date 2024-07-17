@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import javax.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
+import java.time.format.DateTimeFormatter;
 
 
 @Controller
@@ -104,9 +105,6 @@ public class NoteController {
         notesService.archiveNoteById(id, false);
         return "redirect:/archive";
     }
-
-
-
 
 
 }
