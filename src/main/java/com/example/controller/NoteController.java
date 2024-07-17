@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import javax.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import java.time.format.DateTimeFormatter;
+import com.example.Repeatable;
 
 
 @Controller
@@ -68,11 +69,12 @@ public class NoteController {
     }
 
     @PostMapping("/note/create")
-    public String createNote(Note note) {
-        notesService.saveNote(note);
-        if (note.getRepeatable() != null) {
-            notesService.createRepeatingNotes(note);
+    public String createNote(Note note, @RequestParam Repeatable repeatable, @RequestParam LocalDateTime startDate) {
+        if (repeatable != Repeatable.NONE) {
+            note.setRepeatable(repeatable);
+            note.setDateTime(startDate); // Устанавливаем начальную дату
         }
+        notesService.saveNote(note);
         return "redirect:/";
     }
 

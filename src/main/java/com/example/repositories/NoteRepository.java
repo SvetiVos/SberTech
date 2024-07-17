@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
-import org.springframework.data.jpa.repository.Query;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findByTitleOrContent(String title, String content);
@@ -26,5 +25,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     List<Note> findByArchivedFalse(Sort sort);
 
     List<Note> findByArchivedTrue(Sort sort);
+
+    List<Note> findByDateTimeBeforeAndStatus(LocalDateTime now, boolean status);
 
 }

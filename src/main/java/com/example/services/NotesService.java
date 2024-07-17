@@ -21,8 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotesService {
     private final NoteRepository noteRepository;
 
-
-
     public List<Note> listNotes(String title) {
         if (title != null) return noteRepository.findByTitleAndArchivedFalse(title);
         return noteRepository.findByArchivedFalse(Sort.by(Sort.Direction.ASC, "priority"));
@@ -121,7 +119,7 @@ public class NotesService {
     }
 
 
-    public LocalDateTime plusTime(Repeatable repeatable,LocalDateTime startDate){
+    public LocalDateTime plusTime(Repeatable repeatable, LocalDateTime startDate){
         switch (repeatable) {
             case DAY:
                 return startDate.plusDays(1);
@@ -135,28 +133,39 @@ public class NotesService {
             default:
                 return startDate;
         }
-
     }
 
-    public void createRepeatingNotes(Note note) {
-        LocalDateTime nextDateTime = note.getStartDate();
-        if (note.getRepeatable() == Repeatable.NONE) {
-            nextDateTime = null;
-        }
-        while (nextDateTime != null && nextDateTime.isBefore(note.getDateTime())) {
-            Note repeatingNote = new Note();
-            repeatingNote.setTitle(note.getTitle());
-            repeatingNote.setContent(note.getContent());
-            repeatingNote.setDateTime(nextDateTime);
-            repeatingNote.setPriority(note.getPriority());
-            repeatingNote.setCategory(note.getCategory());
-            repeatingNote.setStatus(note.getStatus());
-            repeatingNote.setArchived(note.getArchived());
-            repeatingNote.setRepeatable(note.getRepeatable());
-            repeatingNote.setStartDate(note.getStartDate());
-            saveNote(repeatingNote);
-            nextDateTime = plusTime(note.getRepeatable(), nextDateTime);
-        }
+    public void updateNextExecutionTime(Note note) {
+        LocalDateTime nextDateTime = plusTime(note.getRepeatable(), note.getDateTime());
+        note.setDateTime(nextDateTime);
+        saveNote(note);
     }
 
+    public void prolong(List<Note> notes) {
+        LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
+        for (Note note : notes) {
+            if (note.getDateTime().toLocalDate().equals(today.toLocalDate())) {
+                switch (note.getRepeatable()) {
+                    case NONE:
+                        note.setStatus(true);
+                        break;
+                    case DAY:
+                        note.setDateTime(note.getDateTime().plusDays(1));
+                        break;
+                    case WEEK:
+                        note.setDateTime(note.getDateTime().plusWeeks(1));
+                        break;
+                    case MONTH:
+                        note.setDateTime(note.getDateTime().plusMonths(1));
+                        break;
+                    case YEAR:
+                        note.setDateTime(note.getDateTime().plusYears(1));
+                        break;
+                    default:
+                        break;
+                }
+                saveNote(note);
+            }
+        }
+    }
 }
