@@ -80,7 +80,7 @@ public class NoteController {
         User user = notesService.getUserByPrincipal(principal);
         if (repeatable != Repeatable.NONE) {
             note.setRepeatable(repeatable);
-            note.setDateTime(startDate);
+            note.setDateTime(notesService.plusTime(repeatable, startDate));
         }
         notesService.saveNote(note, user);
         return "redirect:/";
@@ -118,5 +118,16 @@ public class NoteController {
         User user = notesService.getUserByPrincipal(principal);
         notesService.archiveNoteById(id, false, user);
         return "redirect:/archive";
+    }
+
+    @Transactional
+    @Scheduled(fixedDelay = 60000)
+    public void monitoringRepeatablePlan(User user, LocalDateTime startDate) {
+        List<Note> repeatableNotes = notesService.findByStartDate(startDate);
+        for (Note repeatableNote : repeatableNotes) {
+            repeatableNote.setStatus(false);
+            repeatableNote.setDateTime(notesService.plusTime(repeatableNote.getRepeatable(), startDate));
+            notesService.updateNote(repeatableNote, user);
+        }
     }
 }

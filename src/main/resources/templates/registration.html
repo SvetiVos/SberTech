@@ -10,8 +10,10 @@
 <form action="#" th:action="@{/registration}" th:object="${user}" method="post">
     <p>Логин<input type="text" th:field="${user.username}"/></p>
     <p>Пароль<input type="text" th:field="${user.password}"/></p>
+    <p th:if="${registrationError}" th:text="${registrationError}" style="color: red;"></p>
     <input type="submit" value="Отправить"/>
 </form>
+<br/>
 <a th:href="@{/index}">На главную страницу</a>
 </tbody>
 </html>

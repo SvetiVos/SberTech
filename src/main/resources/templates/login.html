@@ -7,17 +7,18 @@
 </head>
 <body>
 <h2>Вход в систему</h2>
-<div th:if="${param.error}">
+<div th:if="${param.error}" style="color: red;">
     Некорректное имя пользователя или пароль.
 </div>
 <div th:if="${param.logout}">
     Выход.
 </div>
 <form th:action="@{/login}" method="post">
-    <div><label>Имя пользователя:<input type="text" name="username"/> </label></div>
-    <div><label>Пароль:<input type="password" name="password"/> </label></div>
-    <div><input type="submit" value="Sign In"/></div>
+    <p><label>Имя пользователя:<input type="text" name="username"/> </label></p>
+    <p><label>Пароль:<input type="password" name="password"/> </label></p>
+    <p><input type="submit" value="Sign In"/></p>
 </form>
+<br/>
 <a th:href="@{/index}">На главную страницу</a>
 </body>
 </html>

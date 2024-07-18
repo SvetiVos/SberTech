@@ -22,8 +22,9 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
-    public String addUser(@ModelAttribute("user") User userForm) {
+    public String addUser(@ModelAttribute("user") User userForm, Model model) {
         if (!userService.saveUser(userForm)) {
+            model.addAttribute("registrationError", "Пользователь с таким логином уже существует.");
             return "registration";
         }
         return "redirect:/login";

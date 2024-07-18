@@ -26,6 +26,6 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
     List<Note> findByUserAndArchivedTrue(User user, Sort sort);
 
-    List<Note> findByDateTimeBeforeAndStatus(LocalDateTime now, boolean status);
+    List<Note> findByStartDate(LocalDateTime startDate);
 }
 

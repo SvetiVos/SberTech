@@ -122,6 +122,15 @@ public class NotesService {
         }
     }
 
+    public User getUserByPrincipal(Principal principal) {
+        if (principal == null) return new User();
+        return userRepository.findByUsername(principal.getName());
+    }
+
+    public List<Note> findByStartDate(LocalDateTime startDate) {
+        return noteRepository.findByStartDate(startDate);
+    }
+
     public LocalDateTime plusTime(Repeatable repeatable, LocalDateTime startDate){
         switch (repeatable) {
             case DAY:
@@ -138,44 +147,4 @@ public class NotesService {
         }
     }
 
-    public void updateNextExecutionTime(Note note, User user) {
-        LocalDateTime nextDateTime = plusTime(note.getRepeatable(), note.getDateTime());
-        note.setDateTime(nextDateTime);
-        note.setUser(user);
-        saveNote(note, user);
-    }
-
-    public void prolong(List<Note> notes, User user) {
-        LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
-        for (Note note : notes) {
-            if (note.getDateTime().toLocalDate().equals(today.toLocalDate())) {
-                switch (note.getRepeatable()) {
-                    case NONE:
-                        note.setStatus(true);
-                        break;
-                    case DAY:
-                        note.setDateTime(note.getDateTime().plusDays(1));
-                        break;
-                    case WEEK:
-                        note.setDateTime(note.getDateTime().plusWeeks(1));
-                        break;
-                    case MONTH:
-                        note.setDateTime(note.getDateTime().plusMonths(1));
-                        break;
-                    case YEAR:
-                        note.setDateTime(note.getDateTime().plusYears(1));
-                        break;
-                    default:
-                        break;
-                }
-                note.setUser(user);
-                saveNote(note, user);
-            }
-        }
-    }
-
-    public User getUserByPrincipal(Principal principal) {
-        if (principal == null) return new User();
-        return userRepository.findByUsername(principal.getName());
-    }
 }
