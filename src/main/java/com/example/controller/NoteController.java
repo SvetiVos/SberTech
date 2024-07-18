@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.models.Note;
 import com.example.services.NotesService;
+import com.example.services.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,11 +12,15 @@ import org.springframework.ui.Model;
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDateTime;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import javax.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import java.time.format.DateTimeFormatter;
 import com.example.Repeatable;
+import java.security.Principal;
+import com.example.models.User;
 
 
 @Controller
@@ -26,28 +31,29 @@ public class NoteController {
     @GetMapping("/")
     public String getNotesPage(@RequestParam(name = "title", required = false) String title,
                                @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
-                               Model model) {
+                               Model model, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
         List<Note> notesList;
         if (dateTime != null) {
-            notesList = notesService.searchNotesByDeadline(dateTime);
+            notesList = notesService.searchNotesByDeadline(dateTime, user);
         } else {
-            notesList = (title != null && !title.isEmpty()) ? notesService.listNotes(title) : notesService.listNotes(null);
+            notesList = (title != null && !title.isEmpty()) ? notesService.listNotes(title, user) : notesService.listNotes(null, user);
         }
         model.addAttribute("notesList", notesList);
         model.addAttribute("note", new Note());
         return "notesList";
     }
 
-
     @GetMapping("/archive")
     public String getArchive(@RequestParam(name = "title", required = false) String title,
                              @RequestParam(name = "dateTime", required = false) LocalDateTime dateTime,
-                             Model model) {
+                             Model model, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
         List<Note> archivedNotesList;
         if (dateTime != null) {
-            archivedNotesList = notesService.searchNotesByDeadlineArchived(dateTime);
+            archivedNotesList = notesService.searchNotesByDeadlineArchived(dateTime, user);
         } else {
-            archivedNotesList = (title != null && !title.isEmpty()) ? notesService.listArchivedNotes(title) : notesService.listArchivedNotes(null);
+            archivedNotesList = (title != null && !title.isEmpty()) ? notesService.listArchivedNotes(title, user) : notesService.listArchivedNotes(null, user);
         }
         model.addAttribute("archivedNotesList", archivedNotesList);
         model.addAttribute("note", new Note());
@@ -55,8 +61,9 @@ public class NoteController {
     }
 
     @GetMapping("/filter")
-    public String getNotesPageStatus(Boolean status, Model model) {
-        List<Note> notesList = notesService.filterNotesByStatus(status);
+    public String getNotesPageStatus(Boolean status, Model model, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
+        List<Note> notesList = notesService.filterNotesByStatus(status, user);
         model.addAttribute("notesList", notesList);
         model.addAttribute("note", new Note());
         return "notesList";
@@ -69,12 +76,13 @@ public class NoteController {
     }
 
     @PostMapping("/note/create")
-    public String createNote(Note note, @RequestParam Repeatable repeatable, @RequestParam LocalDateTime startDate) {
+    public String createNote(Note note, @RequestParam Repeatable repeatable, @RequestParam LocalDateTime startDate, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
         if (repeatable != Repeatable.NONE) {
             note.setRepeatable(repeatable);
-            note.setDateTime(startDate); // Устанавливаем начальную дату
+            note.setDateTime(startDate);
         }
-        notesService.saveNote(note);
+        notesService.saveNote(note, user);
         return "redirect:/";
     }
 
@@ -85,28 +93,30 @@ public class NoteController {
     }
 
     @PostMapping("/note/change/status/{id}")
-    public String changeStatus(@PathVariable Long id) {
-        notesService.changeStatusById(id);
+    public String changeStatus(@PathVariable Long id, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
+        notesService.changeStatusById(id, user);
         return "redirect:/";
     }
 
     @PostMapping("/note/update")
-    public String updateNote(Note updatedNote) {
-        notesService.updateNote(updatedNote);
+    public String updateNote(Note updatedNote, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
+        notesService.updateNote(updatedNote, user);
         return "redirect:/";
     }
 
     @PostMapping("/note/archive/{id}")
-    public String archiveNote(@PathVariable Long id) {
-        notesService.archiveNoteById(id, true);
+    public String archiveNote(@PathVariable Long id, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
+        notesService.archiveNoteById(id, true, user);
         return "redirect:/";
     }
 
     @PostMapping("/note/unarchive/{id}")
-    public String unarchiveNote(@PathVariable Long id) {
-        notesService.archiveNoteById(id, false);
+    public String unarchiveNote(@PathVariable Long id, Principal principal) {
+        User user = notesService.getUserByPrincipal(principal);
+        notesService.archiveNoteById(id, false, user);
         return "redirect:/archive";
     }
-
-
 }

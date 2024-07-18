@@ -47,4 +47,8 @@ public class Note {
     @Column(name = "startDate")
     private LocalDateTime startDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
 }

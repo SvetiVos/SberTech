@@ -19,6 +19,16 @@
     <div class="inline">
         <a th:href="@{/archive}">Архив</a>
     </div>
+
+    <div class="inline">
+        <h1>|</h1>
+    </div>
+
+    <div class="inline">
+        <form th:action="@{/logout}" method="post">
+            <h4><input type="submit" value="Выйти"/></h4>
+        </form>
+    </div>
 </div>
 
 <hr>

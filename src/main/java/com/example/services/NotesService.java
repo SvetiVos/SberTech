@@ -3,6 +3,7 @@ package com.example.services;
 import com.example.Repeatable;
 import com.example.models.Note;
 import com.example.repositories.NoteRepository;
+import com.example.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
-
-import org.springframework.transaction.annotation.Transactional;
+import java.security.Principal;
+import com.example.models.User;
 
 
 @RequiredArgsConstructor
@@ -20,43 +21,45 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NotesService {
     private final NoteRepository noteRepository;
+    private final UserRepository userRepository;
 
-    public List<Note> listNotes(String title) {
-        if (title != null) return noteRepository.findByTitleAndArchivedFalse(title);
-        return noteRepository.findByArchivedFalse(Sort.by(Sort.Direction.ASC, "priority"));
+    public List<Note> listNotes(String title, User user) {
+        if (title != null) return noteRepository.findByTitleAndUserAndArchivedFalse(title, user);
+        return noteRepository.findByUserAndArchivedFalse(user, Sort.by(Sort.Direction.ASC, "priority"));
     }
 
-    public List<Note> searchNotesByDeadline(LocalDateTime dateTime) {
+    public List<Note> searchNotesByDeadline(LocalDateTime dateTime, User user) {
         if (dateTime != null) {
-            return noteRepository.findByDateTimeAndArchivedFalse(dateTime, Sort.by(Sort.Direction.ASC, "priority"));
+            return noteRepository.findByDateTimeAndUserAndArchivedFalse(dateTime, user, Sort.by(Sort.Direction.ASC, "priority"));
         }
-        return noteRepository.findByArchivedFalse(Sort.by(Sort.Direction.ASC, "priority"));
+        return noteRepository.findByUserAndArchivedFalse(user, Sort.by(Sort.Direction.ASC, "priority"));
     }
 
-    public List<Note> searchNotesByDeadlineArchived(LocalDateTime dateTime) {
+    public List<Note> searchNotesByDeadlineArchived(LocalDateTime dateTime, User user) {
         if (dateTime != null) {
-            return noteRepository.findByDateTimeAndArchivedTrue(dateTime, Sort.by(Sort.Direction.ASC, "priority"));
+            return noteRepository.findByDateTimeAndUserAndArchivedTrue(dateTime, user, Sort.by(Sort.Direction.ASC, "priority"));
         }
-        return noteRepository.findByArchivedTrue(Sort.by(Sort.Direction.ASC, "priority"));
+        return noteRepository.findByUserAndArchivedTrue(user, Sort.by(Sort.Direction.ASC, "priority"));
     }
 
-    public List<Note> listNotesByCategory(String category) {
+    public List<Note> listNotesByCategory(String category, User user) {
         if (category != null && !category.isEmpty()) {
-            return noteRepository.findByCategoryAndArchivedFalse(category, Sort.by(Sort.Direction.ASC, "priority"));
+            return noteRepository.findByCategoryAndUserAndArchivedFalse(category, user, Sort.by(Sort.Direction.ASC, "priority"));
         }
-        return noteRepository.findByArchivedFalse(Sort.by(Sort.Direction.ASC, "priority"));
+        return noteRepository.findByUserAndArchivedFalse(user, Sort.by(Sort.Direction.ASC, "priority"));
     }
 
-    public List<Note> filterNotesByStatus(Boolean status) {
-        return noteRepository.findByStatusAndArchivedFalse(status);
+    public List<Note> filterNotesByStatus(Boolean status, User user) {
+        return noteRepository.findByStatusAndUserAndArchivedFalse(status, user);
     }
 
-    public List<Note> listArchivedNotes(String title) {
-        if (title != null) return noteRepository.findByTitleAndArchivedTrue(title);
-        return noteRepository.findByArchivedTrue(Sort.by(Sort.Direction.ASC, "priority"));
+    public List<Note> listArchivedNotes(String title, User user) {
+        if (title != null) return noteRepository.findByTitleAndUserAndArchivedTrue(title, user);
+        return noteRepository.findByUserAndArchivedTrue(user, Sort.by(Sort.Direction.ASC, "priority"));
     }
 
-    public void saveNote(Note note) {
+    public void saveNote(Note note, User user) {
+        note.setUser(user);
         log.info("Saving new {}", note);
         noteRepository.save(note);
     }
@@ -69,9 +72,7 @@ public class NotesService {
         return noteRepository.findById(id).orElse(null);
     }
 
-
-
-    public void updateNote(Note updatedNote) {
+    public void updateNote(Note updatedNote, User user) {
         Optional<Note> existingNote = noteRepository.findById(updatedNote.getId());
         if(existingNote.isPresent()){
             Note noteToUpdate = existingNote.get();
@@ -83,6 +84,7 @@ public class NotesService {
             noteToUpdate.setStatus(updatedNote.getStatus());
             noteToUpdate.setArchived(updatedNote.getArchived());
             noteToUpdate.setRepeatable(updatedNote.getRepeatable());
+            noteToUpdate.setUser(user);
             noteRepository.save(noteToUpdate);
             log.info("Note updated successfully: {}", noteToUpdate);
         } else {
@@ -90,7 +92,7 @@ public class NotesService {
         }
     }
 
-    public void changeStatusById(Long id) {
+    public void changeStatusById(Long id, User user) {
         Optional<Note> existingNote = noteRepository.findById(id);
         if (existingNote.isPresent()) {
             Note note = existingNote.get();
@@ -99,6 +101,7 @@ public class NotesService {
             } else {
                 note.setStatus(!note.getStatus());
             }
+            note.setUser(user);
             noteRepository.save(note);
             log.info("Note status changed successfully: {}", note);
         } else {
@@ -106,18 +109,18 @@ public class NotesService {
         }
     }
 
-    public void archiveNoteById(Long id, boolean archive) {
+    public void archiveNoteById(Long id, boolean archive, User user) {
         Optional<Note> existingNote = noteRepository.findById(id);
         if (existingNote.isPresent()) {
             Note noteToArchive = existingNote.get();
             noteToArchive.setArchived(archive);
+            noteToArchive.setUser(user);
             noteRepository.save(noteToArchive);
             log.info("Note archived/unarchived successfully: {}", noteToArchive);
         } else {
             log.error("Note with id {} not found", id);
         }
     }
-
 
     public LocalDateTime plusTime(Repeatable repeatable, LocalDateTime startDate){
         switch (repeatable) {
@@ -135,13 +138,14 @@ public class NotesService {
         }
     }
 
-    public void updateNextExecutionTime(Note note) {
+    public void updateNextExecutionTime(Note note, User user) {
         LocalDateTime nextDateTime = plusTime(note.getRepeatable(), note.getDateTime());
         note.setDateTime(nextDateTime);
-        saveNote(note);
+        note.setUser(user);
+        saveNote(note, user);
     }
 
-    public void prolong(List<Note> notes) {
+    public void prolong(List<Note> notes, User user) {
         LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
         for (Note note : notes) {
             if (note.getDateTime().toLocalDate().equals(today.toLocalDate())) {
@@ -164,8 +168,14 @@ public class NotesService {
                     default:
                         break;
                 }
-                saveNote(note);
+                note.setUser(user);
+                saveNote(note, user);
             }
         }
+    }
+
+    public User getUserByPrincipal(Principal principal) {
+        if (principal == null) return new User();
+        return userRepository.findByUsername(principal.getName());
     }
 }
